@@ -9,8 +9,6 @@ repositories {
     mavenCentral()
 }
 
-
-
 dependencies {
     compile 'net.sf.json-lib:json-lib:2.4:jdk15'
     compile group: 'org.apache.poi', name: 'poi', version: '3.17'
@@ -19,4 +17,15 @@ dependencies {
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
+jar {
+    manifest {
+        attributes(
+                "Manifest-Version": 1.0,
+                "Main-Class": "com.cmi.sonar.AnalyzeMain")
+    }
+    from { configurations.compile.collect { it.isDirectory() ? it : zipTree(it) } }
+    into('assets') {
+        from 'assets'
+    }
+}
 
