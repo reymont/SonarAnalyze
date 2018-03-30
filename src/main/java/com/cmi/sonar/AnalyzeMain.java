@@ -1,5 +1,6 @@
 package com.cmi.sonar;
 
+import com.cmi.util.PropertyUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
 import org.apache.commons.logging.Log;
@@ -18,14 +19,21 @@ import java.util.*;
 public class AnalyzeMain {
     private static Log log = LogFactory.getLog(AnalyzeMain.class);
 
+    /**
+     * @param args
+     */
+
     public static void main(String[] args) {
         AnalyzeMain analyzeMain = new AnalyzeMain();
-        Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData();
-        List<String>projectList= analyzeMain.projectNameList();
+        String service=PropertyUtil.getProperty("analyze.service");
+        String port=PropertyUtil.getProperty("analyze.port");
+        Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData(service,port);
+        List<String>projectList= analyzeMain.projectNameList(service,port);
     //    String startTime=args[0];
     //    String endTime=args[1];
         String startTime="2018-03-25";
         String endTime="2018-03-30";
+
         try {
             new WriteExcelForXSSF().write(projectList,bugdateMap,startTime,endTime);
             log.info("Sonar Analyze Report Export  Successful");
@@ -84,11 +92,11 @@ public class AnalyzeMain {
      * 拼装数据成格式为Map
      * 包含ProjectName、date、bug数量
      */
-    public Map<String, Map<String, String>> analyzeData() {
+    public Map<String, Map<String, String>> analyzeData(String service,String port) {
 
         Map<String, Map<String, String>> analyzeMap = new HashMap<>();
         //获取所有项目信息
-        String projectPath = "http://172.20.62.127:9000/api/projects/search?ps=500";
+        String projectPath = "http://"+service+":+"+port+"/api/projects/search?ps=500";
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
         Map<String, List<Map<String, String>>> projectMap = (Map<String, List<Map<String, String>>>) json;
@@ -115,9 +123,9 @@ public class AnalyzeMain {
         return analyzeMap;
     }
 
-    public List<String> projectNameList(){
+    public List<String> projectNameList(String service,String port){
         List<String> projectList=new ArrayList<>();
-        String projectPath = "http://172.20.62.127:9000/api/projects/search?ps=500";
+        String projectPath = "http://"+service+":"+port+"/api/projects/search?ps=500";
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
         Map<String, List<Map<String, String>>> projectMap = (Map<String, List<Map<String, String>>>) json;
