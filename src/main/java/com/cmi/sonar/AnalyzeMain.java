@@ -2,6 +2,7 @@ package com.cmi.sonar;
 
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -18,16 +19,44 @@ import java.util.*;
 public class AnalyzeMain {
     private static Log log = LogFactory.getLog(AnalyzeMain.class);
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws Exception {
+        //定义
+        Options options = new Options();
+        options.addOption("?", false, "list help");//false代表不强制有
+        options.addOption("h", false, "sonar server");//false代表不强制有
+        options.addOption("p", false, "sonar port");
+
+        //解析
+        //1.3.1中已经弃用针对不同格式入参对应的解析器
+        //CommandLineParser parser = new PosixParser();
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, args);
+
+        //查询交互
+        if (cmd.hasOption("?") || args.length==0) {
+            String formatstr = "CLI  cli help";
+            HelpFormatter hf = new HelpFormatter();
+            hf.printHelp(formatstr, "", options, "");
+            return;
+        }
+
+        if (cmd.hasOption("h")) {
+            // System.out.printf("system time has setted  %s \n", cmd.getOptionValue("t"));
+        }else{
+
+        }
+
+        System.out.println("error");
+
         AnalyzeMain analyzeMain = new AnalyzeMain();
         Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData();
-        List<String>projectList= analyzeMain.projectNameList();
-    //    String startTime=args[0];
-    //    String endTime=args[1];
-        String startTime="2018-03-25";
-        String endTime="2018-03-30";
+        List<String> projectList = analyzeMain.projectNameList();
+        //    String startTime=args[0];
+        //    String endTime=args[1];
+        String startTime = "2018-03-25";
+        String endTime = "2018-03-30";
         try {
-            new WriteExcelForXSSF().write(projectList,bugdateMap,startTime,endTime);
+            new WriteExcelForXSSF().write(projectList, bugdateMap, startTime, endTime);
             log.info("Sonar Analyze Report Export  Successful");
         } catch (ParseException e) {
             log.error("Date Format Error");
@@ -111,12 +140,12 @@ public class AnalyzeMain {
             }
             analyzeMap.put(map.get("name"), bugDataMap);
         }
-        log.info("analyzeMap:"+analyzeMap);
+        log.info("analyzeMap:" + analyzeMap);
         return analyzeMap;
     }
 
-    public List<String> projectNameList(){
-        List<String> projectList=new ArrayList<>();
+    public List<String> projectNameList() {
+        List<String> projectList = new ArrayList<>();
         String projectPath = "http://172.20.62.127:9000/api/projects/search?ps=500";
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
@@ -125,7 +154,7 @@ public class AnalyzeMain {
         for (Map<String, String> map : dataList) {
             projectList.add(map.get("name"));
         }
-        log.info("Project List:"+projectList);
+        log.info("Project List:" + projectList);
         return projectList;
     }
 
