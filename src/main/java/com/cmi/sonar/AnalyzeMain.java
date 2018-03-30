@@ -23,12 +23,12 @@ public class AnalyzeMain {
         //定义
         Options options = new Options();
         options.addOption("?", false, "list help");//false代表不强制有
-        options.addOption("h", false, "sonar server");//false代表不强制有
+        options.addOption("h", false, "sonar server");
         options.addOption("p", false, "sonar port");
+        options.addOption("s", false, "start date, example: 2018-03-30");
+        options.addOption("e", false, "end date, example: 2018-03-23");
 
         //解析
-        //1.3.1中已经弃用针对不同格式入参对应的解析器
-        //CommandLineParser parser = new PosixParser();
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
 
@@ -45,8 +45,6 @@ public class AnalyzeMain {
         }else{
 
         }
-
-        System.out.println("error");
 
         AnalyzeMain analyzeMain = new AnalyzeMain();
         Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData();
