@@ -1,7 +1,8 @@
-.gradle
+/.gradle/
 /build/
 /.idea/
 /out/
+*.xlsx
 
 # Ignore Gradle GUI config
 gradle-app.setting

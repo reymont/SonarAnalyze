@@ -81,7 +81,7 @@ public class WriteExcelForXSSF {
             daytime =String.valueOf(cal.get(Calendar.DATE));
             date = year+"-"+month+"-"+daytime;
             System.out.println(date);
-            File file = new File(".\\download\\AnalyzeReport_"+date+".xlsx");
+            File file = new File("download/AnalyzeReport_"+date+".xlsx");
             log.info("Report Path:"+ file.getPath());
             FileOutputStream fileoutputStream = new FileOutputStream(file);
             workbook.write(fileoutputStream);
