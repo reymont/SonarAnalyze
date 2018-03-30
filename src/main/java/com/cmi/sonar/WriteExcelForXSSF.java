@@ -41,10 +41,10 @@ public class WriteExcelForXSSF {
         for (int i = 0; i <= day; i++) {
             //转换时间
             DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-            Date dd = df.parse(startTime);
+            Date dd = df.parse(endTime);
             Calendar calendar = Calendar.getInstance();
             calendar.setTime(dd);
-            calendar.add(Calendar.DAY_OF_MONTH, i);
+            calendar.add(Calendar.DAY_OF_MONTH, -i);
             String date = df.format(calendar.getTime());
             //创建动态时间的列
             row.createCell(i + 1).setCellStyle(cellStyle);
@@ -59,10 +59,10 @@ public class WriteExcelForXSSF {
             for (int k=1;k<=day+1;k++){
                 //转换时间
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
-                Date dd = df.parse(startTime);
+                Date dd = df.parse(endTime);
                 Calendar calendar = Calendar.getInstance();
                 calendar.setTime(dd);
-                calendar.add(Calendar.DAY_OF_MONTH, k-1);
+                calendar.add(Calendar.DAY_OF_MONTH, -k);
                 String dateTime = df.format(calendar.getTime());
                 Map<String,String>bugMap=dataMap.get(projectList.get(j));
                 if (bugMap.get(dateTime)!=null&&bugMap.get(dateTime)!=""){

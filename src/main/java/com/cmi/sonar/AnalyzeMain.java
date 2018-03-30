@@ -22,8 +22,10 @@ public class AnalyzeMain {
         AnalyzeMain analyzeMain = new AnalyzeMain();
         Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData();
         List<String>projectList= analyzeMain.projectNameList();
-        String startTime=args[0];
-        String endTime=args[1];
+    //    String startTime=args[0];
+    //    String endTime=args[1];
+        String startTime="2018-03-25";
+        String endTime="2018-03-30";
         try {
             new WriteExcelForXSSF().write(projectList,bugdateMap,startTime,endTime);
             log.info("Sonar Analyze Report Export  Successful");
