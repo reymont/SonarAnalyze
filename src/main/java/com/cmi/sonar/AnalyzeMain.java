@@ -3,6 +3,7 @@ package com.cmi.sonar;
 import com.cmi.util.PropertyUtil;
 import net.sf.json.JSONArray;
 import net.sf.json.JSONObject;
+import org.apache.commons.cli.*;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
@@ -19,18 +20,40 @@ import java.util.*;
 public class AnalyzeMain {
     private static Log log = LogFactory.getLog(AnalyzeMain.class);
 
-    /**
-     * @param args
-     */
+    public static void main(String[] args) throws Exception {
+        //定义
+        Options options = new Options();
+        options.addOption("?", false, "list help");//false代表不强制有
+        options.addOption("h", false, "sonar server");
+        options.addOption("p", false, "sonar port");
+        options.addOption("s", false, "start date, example: 2018-03-30");
+        options.addOption("e", false, "end date, example: 2018-03-23");
 
-    public static void main(String[] args) {
+        //解析
+        CommandLineParser parser = new DefaultParser();
+        CommandLine cmd = parser.parse(options, args);
+
+        //查询交互
+        if (cmd.hasOption("?") || args.length==0) {
+            String formatstr = "CLI  cli help";
+            HelpFormatter hf = new HelpFormatter();
+            hf.printHelp(formatstr, "", options, "");
+            return;
+        }
+
+        if (cmd.hasOption("h")) {
+            // System.out.printf("system time has setted  %s \n", cmd.getOptionValue("t"));
+        }else{
+
+        }
+
         AnalyzeMain analyzeMain = new AnalyzeMain();
         String service=PropertyUtil.getProperty("analyze.service");
         String port=PropertyUtil.getProperty("analyze.port");
         Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData(service,port);
         List<String>projectList= analyzeMain.projectNameList(service,port);
-    //    String startTime=args[0];
-    //    String endTime=args[1];
+        //    String startTime=args[0];
+        //    String endTime=args[1];
         String startTime="2018-03-25";
         String endTime="2018-03-30";
 
@@ -136,5 +159,7 @@ public class AnalyzeMain {
         log.info("Project List:"+projectList);
         return projectList;
     }
+
+}
 
 }
