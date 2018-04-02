@@ -26,7 +26,6 @@ public class PropertyUtil {
         InputStream in = null;
         try {
             in = PropertyUtil.class.getClassLoader().getResourceAsStream("analyze.properties");
-            //in = PropertyUtil.class.getResourceAsStream("/jdbc.properties");
             props.load(in);
         } catch (FileNotFoundException e) {
             logger.error("jdbc.properties文件未找到");

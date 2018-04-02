@@ -13,7 +13,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
+import java.text.DateFormat;
 import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.*;
 
 
@@ -21,44 +23,67 @@ public class AnalyzeMain {
     private static Log log = LogFactory.getLog(AnalyzeMain.class);
 
     public static void main(String[] args) throws Exception {
+        String service = null;
+        String port = null;
+        String startTime = null;
+        String endTime = null;
         //定义
         Options options = new Options();
         options.addOption("?", false, "list help");//false代表不强制有
         options.addOption("h", false, "sonar server");
         options.addOption("p", false, "sonar port");
         options.addOption("s", false, "start date, example: 2018-03-30");
-        options.addOption("e", false, "end date, example: 2018-03-23");
+        options.addOption("e", false, "end date, example: 2018-04-02");
 
         //解析
         CommandLineParser parser = new DefaultParser();
         CommandLine cmd = parser.parse(options, args);
 
         //查询交互
-        if (cmd.hasOption("?") || args.length==0) {
+        if (cmd.hasOption("?") || args.length == 0) {
             String formatstr = "CLI  cli help";
             HelpFormatter hf = new HelpFormatter();
             hf.printHelp(formatstr, "", options, "");
-            return;
+            //return;
         }
 
         if (cmd.hasOption("h")) {
-            // System.out.printf("system time has setted  %s \n", cmd.getOptionValue("t"));
-        }else{
+            service = cmd.getOptionValue("h");
+        } else {
+            service = PropertyUtil.getProperty("analyze.service");
+        }
 
+        if (cmd.hasOption("p")) {
+            port = cmd.getOptionValue("p");
+        } else {
+            port = PropertyUtil.getProperty("analyze.port");
+        }
+
+        if (cmd.hasOption("e")) {
+            startTime = cmd.getOptionValue("e");
+        } else {
+            //获取当前日期
+            Date d = new Date();
+            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+            endTime = sdf.format(d);
+        }
+
+        if (cmd.hasOption("s")) {
+            endTime = cmd.getOptionValue("s");
+        } else {
+            DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
+            Date dd = df.parse(endTime);
+            Calendar calendar = Calendar.getInstance();
+            calendar.setTime(dd);
+            calendar.add(Calendar.DAY_OF_MONTH, -6);
+            startTime = df.format(calendar.getTime());
         }
 
         AnalyzeMain analyzeMain = new AnalyzeMain();
-        String service=PropertyUtil.getProperty("analyze.service");
-        String port=PropertyUtil.getProperty("analyze.port");
-        Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData(service,port);
-        List<String>projectList= analyzeMain.projectNameList(service,port);
-        //    String startTime=args[0];
-        //    String endTime=args[1];
-        String startTime="2018-03-25";
-        String endTime="2018-03-30";
-
+        Map<String, Map<String, String>> bugdateMap = analyzeMain.analyzeData(service, port);
+        List<String> projectList = analyzeMain.projectNameList(service, port);
         try {
-            new WriteExcelForXSSF().write(projectList,bugdateMap,startTime,endTime);
+            new WriteExcelForXSSF().write(projectList, bugdateMap, startTime, endTime);
             log.info("Sonar Analyze Report Export  Successful");
         } catch (ParseException e) {
             log.error("Date Format Error");
@@ -115,18 +140,18 @@ public class AnalyzeMain {
      * 拼装数据成格式为Map
      * 包含ProjectName、date、bug数量
      */
-    public Map<String, Map<String, String>> analyzeData(String service,String port) {
+    public Map<String, Map<String, String>> analyzeData(String service, String port) {
 
         Map<String, Map<String, String>> analyzeMap = new HashMap<>();
         //获取所有项目信息
-        String projectPath = "http://"+service+":+"+port+"/api/projects/search?ps=500";
+        String projectPath = "http://" + service + ":+" + port + "/api/projects/search?ps=500";
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
         Map<String, List<Map<String, String>>> projectMap = (Map<String, List<Map<String, String>>>) json;
         List<Map<String, String>> dataList = projectMap.get("components");
         for (Map<String, String> map : dataList) {
             Map<String, String> bugDataMap = new HashMap<>();
-            String bugDataPath = httpGet("http://172.20.62.127:9000/api/measures/search_history?metrics=bugs&component=" + map.get("key"));
+            String bugDataPath = httpGet("http://" + service + ":" + port + "/api/measures/search_history?metrics=bugs&component=" + map.get("key"));
             JSONObject jsonObject = JSONObject.fromObject(bugDataPath);
             JSONArray jsonArray = JSONArray.fromObject(jsonObject.get("measures"));
             for (Object obj : jsonArray) {
@@ -142,13 +167,21 @@ public class AnalyzeMain {
             }
             analyzeMap.put(map.get("name"), bugDataMap);
         }
-        log.info("analyzeMap:"+analyzeMap);
+        log.info("analyzeData get Successful");
         return analyzeMap;
     }
 
-    public List<String> projectNameList(String service,String port){
-        List<String> projectList=new ArrayList<>();
-        String projectPath = "http://"+service+":"+port+"/api/projects/search?ps=500";
+
+    /**
+     * 通过rest接口获取所有项目的名称
+     *
+     * @param service
+     * @param port
+     * @return
+     */
+    public List<String> projectNameList(String service, String port) {
+        List<String> projectList = new ArrayList<>();
+        String projectPath = "http://" + service + ":" + port + "/api/projects/search?ps=500";
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
         Map<String, List<Map<String, String>>> projectMap = (Map<String, List<Map<String, String>>>) json;
@@ -156,10 +189,9 @@ public class AnalyzeMain {
         for (Map<String, String> map : dataList) {
             projectList.add(map.get("name"));
         }
-        log.info("Project List:"+projectList);
+        log.info("Project List Get Successful");
         return projectList;
     }
 
 }
 
-}
