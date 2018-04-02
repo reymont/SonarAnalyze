@@ -3,7 +3,6 @@ package com.cmi.sonar;
 
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.poi.hssf.util.HSSFColor;
 import org.apache.poi.ss.usermodel.*;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
@@ -28,7 +27,6 @@ public class WriteExcelForXSSF {
         sheet.setColumnWidth(0, 40 * 256);
         CellStyle cellStyle = workbook.createCellStyle();
         // 设置这些样式
-        cellStyle.setFillForegroundColor(HSSFColor.SKY_BLUE.index);
         cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         long m = sdf.parse(endTime).getTime() - sdf.parse(startTime).getTime();
@@ -48,14 +46,14 @@ public class WriteExcelForXSSF {
             //创建动态时间的列
             row.createCell(i + 1).setCellStyle(cellStyle);
             row.createCell(i + 1).setCellValue(date);
-            sheet.setColumnWidth(i+1, 18 * 256);
+            sheet.setColumnWidth(i + 1, 18 * 256);
         }
 
         //循环创建行
         for (int j = 0; j < projectList.size(); j++) {
             Row rowNum = sheet.createRow(j + 1);
             rowNum.createCell(0).setCellValue(projectList.get(j));
-            for (int k=1;k<=day+1;k++){
+            for (int k = 1; k <= day + 1; k++) {
                 //转换时间
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                 Date dd = df.parse(endTime);
@@ -63,8 +61,8 @@ public class WriteExcelForXSSF {
                 calendar.setTime(dd);
                 calendar.add(Calendar.DAY_OF_MONTH, -k);
                 String dateTime = df.format(calendar.getTime());
-                Map<String,String>bugMap=dataMap.get(projectList.get(j));
-                if (bugMap.get(dateTime)!=null&&bugMap.get(dateTime)!=""){
+                Map<String, String> bugMap = dataMap.get(projectList.get(j));
+                if ((bugMap.get(dateTime) != null) && (bugMap.get(dateTime) != "")) {
                     int num = Integer.valueOf(bugMap.get(dateTime));
                     rowNum.createCell(k).setCellValue(num);
                 }
@@ -73,15 +71,15 @@ public class WriteExcelForXSSF {
         }
 
         try {
-            Calendar cal=Calendar.getInstance();
-            String date,daytime,month,year;
-            year =String.valueOf(cal.get(Calendar.YEAR));
-            month =String.valueOf(cal.get(Calendar.MONTH)+1);
-            daytime =String.valueOf(cal.get(Calendar.DATE));
-            date = year+"-"+month+"-"+daytime;
+            Calendar cal = Calendar.getInstance();
+            String date, daytime, month, year;
+            year = String.valueOf(cal.get(Calendar.YEAR));
+            month = String.valueOf(cal.get(Calendar.MONTH) + 1);
+            daytime = String.valueOf(cal.get(Calendar.DATE));
+            date = year + "-" + month + "-" + daytime;
             System.out.println(date);
-            File file = new File("download/AnalyzeReport_"+date+".xlsx");
-            log.info("Report Path:"+ file.getPath());
+            File file = new File("download/AnalyzeReport_" + date + ".xlsx");
+            log.info("Report Path:" + file.getPath());
             FileOutputStream fileoutputStream = new FileOutputStream(file);
             workbook.write(fileoutputStream);
             fileoutputStream.close();

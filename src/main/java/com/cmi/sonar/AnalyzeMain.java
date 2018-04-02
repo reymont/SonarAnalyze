@@ -23,8 +23,8 @@ public class AnalyzeMain {
     private static Log log = LogFactory.getLog(AnalyzeMain.class);
 
     public static void main(String[] args) throws Exception {
-        String service = null;
-        String port = null;
+        String service;
+        String port;
         String startTime = null;
         String endTime = null;
         //定义
@@ -44,7 +44,6 @@ public class AnalyzeMain {
             String formatstr = "CLI  cli help";
             HelpFormatter hf = new HelpFormatter();
             hf.printHelp(formatstr, "", options, "");
-            //return;
         }
 
         if (cmd.hasOption("h")) {
@@ -95,10 +94,8 @@ public class AnalyzeMain {
     /**
      * 通过Get请求获取Sonar中的数据
      *
-     * @param path
-     * @return
      */
-    public static String httpGet(String path) {
+    private static String httpGet(String path) {
         String line;
         HttpURLConnection connection;
         InputStream content = null;
@@ -110,9 +107,9 @@ public class AnalyzeMain {
             connection.setRequestMethod("GET");
             connection.setDoOutput(true);
             connection.setRequestProperty("Authorization", "Basic " + encoding);
-            content = (InputStream) connection.getInputStream();
+            content = connection.getInputStream();
             in = new BufferedReader(new InputStreamReader(content));
-            while ((line = in.readLine()) != null) {
+            if((line = in.readLine()) != null) {
                 return line;
             }
         } catch (Exception e) {
@@ -140,18 +137,20 @@ public class AnalyzeMain {
      * 拼装数据成格式为Map
      * 包含ProjectName、date、bug数量
      */
-    public Map<String, Map<String, String>> analyzeData(String service, String port) {
+    private Map<String, Map<String, String>> analyzeData(String service, String port) {
 
         Map<String, Map<String, String>> analyzeMap = new HashMap<>();
         //获取所有项目信息
         String projectPath = "http://" + service + ":+" + port + "/api/projects/search?ps=500";
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
-        Map<String, List<Map<String, String>>> projectMap = (Map<String, List<Map<String, String>>>) json;
-        List<Map<String, String>> dataList = projectMap.get("components");
-        for (Map<String, String> map : dataList) {
-            Map<String, String> bugDataMap = new HashMap<>();
-            String bugDataPath = httpGet("http://" + service + ":" + port + "/api/measures/search_history?metrics=bugs&component=" + map.get("key"));
+        JSONArray jsonArray1=JSONArray.fromObject(json.get("components"));
+        for (Object object : jsonArray1) {
+            Map<String,String>bugDataMap=new HashMap<>();
+            JSONObject jsonObject1 = JSONObject.fromObject(object);
+            String keyName = (String) jsonObject1.get("key");
+            String name=(String) jsonObject1.get("name");
+            String bugDataPath = httpGet("http://" + service + ":" + port + "/api/measures/search_history?metrics=bugs&component=" + keyName);
             JSONObject jsonObject = JSONObject.fromObject(bugDataPath);
             JSONArray jsonArray = JSONArray.fromObject(jsonObject.get("measures"));
             for (Object obj : jsonArray) {
@@ -165,29 +164,24 @@ public class AnalyzeMain {
                     bugDataMap.put(key.substring(0, 10), value);
                 }
             }
-            analyzeMap.put(map.get("name"), bugDataMap);
+            analyzeMap.put(name, bugDataMap);
         }
-        log.info("analyzeData get Successful");
+        log.info("analyzeData get Successful"+analyzeMap);
         return analyzeMap;
     }
 
 
-    /**
-     * 通过rest接口获取所有项目的名称
-     *
-     * @param service
-     * @param port
-     * @return
-     */
-    public List<String> projectNameList(String service, String port) {
+
+    private List<String> projectNameList(String service, String port) {
         List<String> projectList = new ArrayList<>();
         String projectPath = "http://" + service + ":" + port + "/api/projects/search?ps=500";
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
-        Map<String, List<Map<String, String>>> projectMap = (Map<String, List<Map<String, String>>>) json;
-        List<Map<String, String>> dataList = projectMap.get("components");
-        for (Map<String, String> map : dataList) {
-            projectList.add(map.get("name"));
+        JSONArray jsonArray = JSONArray.fromObject(json.get("components"));
+        for (Object obj : jsonArray) {
+            JSONObject jsonObject1 = JSONObject.fromObject(obj);
+            String name = (String) jsonObject1.get("name");
+            projectList.add(name);
         }
         log.info("Project List Get Successful");
         return projectList;
