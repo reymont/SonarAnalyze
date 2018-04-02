@@ -30,10 +30,10 @@ public class AnalyzeMain {
         //定义
         Options options = new Options();
         options.addOption("?", false, "list help");//false代表不强制有
-        options.addOption("h", false, "sonar server");
-        options.addOption("p", false, "sonar port");
-        options.addOption("s", false, "start date, example: 2018-03-30");
-        options.addOption("e", false, "end date, example: 2018-04-02");
+        options.addOption("h", true, "sonar server");
+        options.addOption("p", true, "sonar port");
+        options.addOption("s", true, "start date, example: 2018-03-30");
+        options.addOption("e", true, "end date, example: 2018-04-02");
 
         //解析
         CommandLineParser parser = new DefaultParser();
@@ -48,6 +48,7 @@ public class AnalyzeMain {
         }
 
         if (cmd.hasOption("h")) {
+            log.info("cmd.getOptionValue(\"h\")： "+cmd.getOptionValue("h"));
             service = cmd.getOptionValue("h");
         } else {
             service = PropertyUtil.getProperty("analyze.service");
@@ -141,8 +142,8 @@ public class AnalyzeMain {
     private Map<String, Map<String, String>> analyzeData(String service, String port) {
 
         Map<String, Map<String, String>> analyzeMap = new HashMap<>();
-        String projectPath = "http://" + service + ":+" + port + "/api/projects/search?ps=500";
-        log.info(projectPath);
+        String projectPath = "http://" + service + ":" + port + "/api/projects/search?ps=500";
+        log.info("projectPath: "+projectPath);
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
         JSONArray jsonArray1=JSONArray.fromObject(json.get("components"));

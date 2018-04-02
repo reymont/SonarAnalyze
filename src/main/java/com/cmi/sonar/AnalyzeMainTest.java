@@ -3,8 +3,8 @@ package com.cmi.sonar;
 public class AnalyzeMainTest {
 
     public static void main(String[] args) throws Exception {
-        String argss[]={"-?"};
-        // argss = {"-t  1000"};
+        // String argss[]={"-?"};
+        String argss[] = {"-h", "172.20.62.127"};
         AnalyzeMain.main(argss);
     }
 }
