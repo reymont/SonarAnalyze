@@ -10,7 +10,7 @@ import java.io.InputStream;
 import java.util.Properties;
 
 /**
- * Desc:properties文件获取工具类
+ * Desc:properties
  */
 public class PropertyUtil {
     private static Log logger = LogFactory.getLog(PropertyUtil.class);
@@ -21,27 +21,27 @@ public class PropertyUtil {
     }
 
     synchronized static private void loadProps() {
-        logger.info("开始加载properties文件内容.......");
+        logger.info("start load properties.......");
         props = new Properties();
         InputStream in = null;
         try {
             in = PropertyUtil.class.getClassLoader().getResourceAsStream("analyze.properties");
             props.load(in);
         } catch (FileNotFoundException e) {
-            logger.error("jdbc.properties文件未找到");
+            logger.error("analyze.properties not found ");
         } catch (IOException e) {
-            logger.error("出现IOException");
+            logger.error("IOException");
         } finally {
             try {
                 if (null != in) {
                     in.close();
                 }
             } catch (IOException e) {
-                logger.error("jdbc.properties文件流关闭出现异常");
+                logger.error("analyze.properties close Exception");
             }
         }
-        logger.info("加载properties文件内容完成...........");
-        logger.info("properties文件内容：" + props);
+        logger.info("load properties complite...........");
+        logger.info("properties:" + props);
     }
 
     public static String getProperty(String key) {

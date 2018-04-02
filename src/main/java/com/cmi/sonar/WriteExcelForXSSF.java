@@ -26,12 +26,10 @@ public class WriteExcelForXSSF {
         Row row = sheet.createRow(0);
         sheet.setColumnWidth(0, 40 * 256);
         CellStyle cellStyle = workbook.createCellStyle();
-        // 设置这些样式
         cellStyle.setFillPattern(FillPatternType.SOLID_FOREGROUND);
         SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
         long m = sdf.parse(endTime).getTime() - sdf.parse(startTime).getTime();
         long day = m / (1000 * 60 * 60 * 24);
-        //创建表头
         workbook.setSheetName(0, "AnalyzeReport");
         row.createCell(0).setCellStyle(cellStyle);
         row.createCell(0).setCellValue("ProjectName");
@@ -43,18 +41,15 @@ public class WriteExcelForXSSF {
             calendar.setTime(dd);
             calendar.add(Calendar.DAY_OF_MONTH, -i);
             String date = df.format(calendar.getTime());
-            //创建动态时间的列
             row.createCell(i + 1).setCellStyle(cellStyle);
             row.createCell(i + 1).setCellValue(date);
             sheet.setColumnWidth(i + 1, 18 * 256);
         }
 
-        //循环创建行
         for (int j = 0; j < projectList.size(); j++) {
             Row rowNum = sheet.createRow(j + 1);
             rowNum.createCell(0).setCellValue(projectList.get(j));
             for (int k = 1; k <= day + 1; k++) {
-                //转换时间
                 DateFormat df = new SimpleDateFormat("yyyy-MM-dd");
                 Date dd = df.parse(endTime);
                 Calendar calendar = Calendar.getInstance();
@@ -77,8 +72,7 @@ public class WriteExcelForXSSF {
             month = String.valueOf(cal.get(Calendar.MONTH) + 1);
             daytime = String.valueOf(cal.get(Calendar.DATE));
             date = year + "-" + month + "-" + daytime;
-            System.out.println(date);
-            File file = new File("download/AnalyzeReport_" + date + ".xlsx");
+            File file = new File("AnalyzeReport_" + date + ".xlsx");
             log.info("Report Path:" + file.getPath());
             FileOutputStream fileoutputStream = new FileOutputStream(file);
             workbook.write(fileoutputStream);

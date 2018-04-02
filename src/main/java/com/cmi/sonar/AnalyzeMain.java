@@ -40,10 +40,11 @@ public class AnalyzeMain {
         CommandLine cmd = parser.parse(options, args);
 
         //查询交互
-        if (cmd.hasOption("?") || args.length == 0) {
+        if (cmd.hasOption("?")) {
             String formatstr = "CLI  cli help";
             HelpFormatter hf = new HelpFormatter();
             hf.printHelp(formatstr, "", options, "");
+            return;
         }
 
         if (cmd.hasOption("h")) {
@@ -140,8 +141,8 @@ public class AnalyzeMain {
     private Map<String, Map<String, String>> analyzeData(String service, String port) {
 
         Map<String, Map<String, String>> analyzeMap = new HashMap<>();
-        //获取所有项目信息
         String projectPath = "http://" + service + ":+" + port + "/api/projects/search?ps=500";
+        log.info(projectPath);
         String projectName = httpGet(projectPath);
         JSONObject json = JSONObject.fromObject(projectName);
         JSONArray jsonArray1=JSONArray.fromObject(json.get("components"));
@@ -166,7 +167,7 @@ public class AnalyzeMain {
             }
             analyzeMap.put(name, bugDataMap);
         }
-        log.info("analyzeData get Successful"+analyzeMap);
+        log.info("analyzeData get Successful");
         return analyzeMap;
     }
 
