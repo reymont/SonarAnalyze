@@ -115,7 +115,7 @@ public class AnalyzeMain {
                 return line;
             }
         } catch (Exception e) {
-            log.error("Get Infomation Error");
+            log.error("Get Infomation Error: "+e.getMessage());
         } finally {
             if (content != null) {
                 try {
@@ -145,6 +145,7 @@ public class AnalyzeMain {
         String projectPath = "http://" + service + ":" + port + "/api/projects/search?ps=500";
         log.info("projectPath: "+projectPath);
         String projectName = httpGet(projectPath);
+        log.info("projectName: "+projectName);
         JSONObject json = JSONObject.fromObject(projectName);
         JSONArray jsonArray1=JSONArray.fromObject(json.get("components"));
         for (Object object : jsonArray1) {
